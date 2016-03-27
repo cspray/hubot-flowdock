@@ -89,6 +89,10 @@ class Flowdock extends Adapter
   myId: (id) ->
     String(id) == String(@bot.userId)
 
+  close: ->
+    for flow in @joinedFlows()
+      @bot.status(flow.id, 'Offline :x:')
+
   reconnect: (reason) ->
     @robot.logger.info("Reconnecting: #{reason}")
     @stream.end()
@@ -102,6 +106,8 @@ class Flowdock extends Adapter
     @stream.on 'connected', =>
       @robot.logger.info('Flowdock: connected and streaming')
       @robot.logger.info('Flowdock: listening to flows:', (flow.name for flow in @joinedFlows()).join(', '))
+      for flow in @joinedFlows()
+        @bot.status(flow.id, 'Online and Serving Requests')
     @stream.on 'clientError', (error) => @robot.logger.error('Flowdock: client error:', error)
     @stream.on 'disconnected', => @robot.logger.info('Flowdock: disconnected')
     @stream.on 'reconnecting', => @robot.logger.info('Flowdock: reconnecting')
